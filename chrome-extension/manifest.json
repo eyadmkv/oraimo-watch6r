@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Oraimo Watch 6R Dashboard",
+  "version": "1.0.0",
+  "description": "Personal smartwatch dashboard for the Oraimo Watch 6R, served by a local Python bridge on 127.0.0.1.",
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["http://127.0.0.1:8765/*"]
+}

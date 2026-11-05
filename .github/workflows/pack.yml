@@ -1,0 +1,91 @@
+name: Pack extension
+
+on:
+  push:
+    branches: [main]
+    paths: ["chrome-extension/**"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    name: Build .crx and .zip
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      EXT_NAME: Oraimo-Watch6R-Dashboard
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Prepare signing key
+        env:
+          CRX_PRIVATE_KEY: ${{ secrets.CRX_PRIVATE_KEY }}
+        run: |
+          mkdir -p dist
+          if [ -n "$CRX_PRIVATE_KEY" ]; then
+            printf '%s\n' "$CRX_PRIVATE_KEY" > key.pem
+            echo "Using CRX_PRIVATE_KEY secret (stable extension ID)."
+          else
+            node -e "const{generateKeyPairSync,writeFileSync}=require('crypto');const{privateKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});writeFileSync('key.pem',privateKey)"
+            echo "CRX_PRIVATE_KEY secret is not set; generated an ephemeral key." | tee "$GITHUB_STEP_SUMMARY"
+            echo "The extension ID will differ on every run. Add a CRX_PRIVATE_KEY repo secret to get a stable ID." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Compute extension ID
+        run: |
+          EXT_ID=$(node -e "
+            const crypto=require('crypto'),fs=require('fs');
+            const der=crypto.createPublicKey(fs.readFileSync('key.pem','utf8')).export({type:'spki',format:'der'});
+            const h=crypto.createHash('sha256').update(der).digest().subarray(0,16);
+            console.log([...h].map(b=>String.fromCharCode(97+(b>>4),97+(b&15))).join(''));
+          ")
+          echo "Extension ID: $EXT_ID" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Compute artifact names
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            SUFFIX="${GITHUB_REF#refs/tags/}"
+          else
+            SUFFIX="$(git rev-parse --short HEAD)"
+          fi
+          echo "CRX_NAME=${EXT_NAME}-${SUFFIX}.crx" >> "$GITHUB_ENV"
+          echo "ZIP_NAME=${EXT_NAME}-${SUFFIX}.zip" >> "$GITHUB_ENV"
+
+      - name: Pack CRX3
+        run: npx --yes crx3 chrome-extension -o "dist/${CRX_NAME}" -p key.pem
+
+      - name: Pack ZIP
+        run: |
+          cd chrome-extension
+          zip -r "../dist/${ZIP_NAME}" . -x '* bak*' '*-v1.*'
+          cd ..
+
+      - name: Verify artifacts
+        run: |
+          test -s "dist/${CRX_NAME}"
+          test -s "dist/${ZIP_NAME}"
+          head -c 4 "dist/${CRX_NAME}" | grep -q "Cr24"
+          ls -l dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension-build
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/${{ env.CRX_NAME }}
+            dist/${{ env.ZIP_NAME }}

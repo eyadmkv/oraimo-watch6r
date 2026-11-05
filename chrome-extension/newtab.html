@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Oraimo Watch 6R</title>
+  <link rel="stylesheet" href="styles/dashboard.css">
+  <link rel="icon" href="assets/icon48.png">
+</head>
+<body>
+<div class="shell">
+
+  <header class="bar">
+    <div class="bar-date">
+      <h1 id="clock-date">—</h1>
+      <p id="clock-year" class="bar-sub"></p>
+    </div>
+    <div class="bar-right">
+      <span class="chip" role="status">
+        <span id="connection-dot" class="dot dot-off" aria-hidden="true"></span>
+        <span id="connection-label">Connecting…</span>
+      </span>
+      <time id="clock-time" class="clock">--:--</time>
+      <button id="reconnect-btn" class="btn" type="button" title="Ask the bridge to rescan and reconnect">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.6L4 8"/><path d="M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.3 4.6L20 16"/><path d="M20 20v-4h-4"/></svg>
+        Reconnect
+      </button>
+      <button id="settings-btn" class="btn btn-icon" type="button" aria-expanded="false" aria-controls="settings-panel" title="Settings" aria-label="Settings">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section id="settings-panel" class="panel hidden" aria-label="Bridge settings">
+    <label for="token-input">Bridge token <span class="hint">printed when the bridge starts, and kept in bridge/token.txt</span></label>
+    <div class="panel-row">
+      <input id="token-input" type="password" placeholder="Paste the bridge token" autocomplete="off" spellcheck="false">
+      <button id="token-save" class="btn btn-primary" type="button">Save token</button>
+    </div>
+    <p class="hint" id="settings-feedback" role="status"></p>
+  </section>
+
+  <div id="banner" class="banner hidden" role="alert"></div>
+
+  <main class="bento">
+
+    <section class="tile t-steps" aria-labelledby="steps-h">
+      <div class="tile-head">
+        <h2 id="steps-h">Steps</h2>
+        <span class="meta" id="ov-steps-src">awaiting the watch</span>
+      </div>
+      <div class="steps-read">
+        <span class="num num-xl is-empty" id="ov-steps">—</span>
+        <span class="steps-of" id="ov-goal-text">goal unavailable</span>
+      </div>
+      <div class="ruler" id="steps-ruler" role="img" aria-label="Steps against the daily goal">
+        <div class="ruler-track"><div class="ruler-fill" id="goal-bar"></div></div>
+        <div class="ruler-marks" id="ruler-marks"></div>
+      </div>
+      <ul class="legend" id="ruler-legend"></ul>
+      <dl class="pair">
+        <div><dt>Distance</dt><dd id="ov-distance" class="is-empty">—</dd></div>
+        <div><dt>Calories</dt><dd id="ov-calories" class="is-empty">—</dd></div>
+      </dl>
+      <div class="steps-command">
+        <button id="fetch-steps-btn" class="btn btn-primary" type="button">Fetch Steps</button>
+        <span id="fetch-steps-status" role="status" aria-live="polite">No on-demand reading yet.</span>
+      </div>
+      <p class="fine" id="fetch-steps-measured-at">No fetched measurement stored.</p>
+      <p class="fine">Today’s distance and calories are provisional readings of the watch’s live activity packet.</p>
+    </section>
+
+    <section class="tile t-heart" aria-labelledby="hr-h">
+      <div class="tile-head">
+          <h2 id="hr-h">Heart rate</h2>
+        <span class="meta" id="hr-status">not measuring</span>
+      </div>
+      <div class="hr-read">
+        <span class="num num-lg is-empty" id="hr-current">—</span>
+        <span class="unit">bpm</span>
+      </div>
+      <p class="prose" id="hr-note">No stored readings today yet.</p>
+      <div class="range" role="img" id="hr-range" aria-label="Today’s heart-rate range on a 40 to 180 scale">
+        <div class="range-track"><div class="range-span" id="hr-span"></div></div>
+        <div class="range-scale" aria-hidden="true">
+          <span style="--p:0%">40</span><span style="--p:28.57%">80</span><span style="--p:57.14%">120</span><span style="--p:85.71%">160</span>
+        </div>
+      </div>
+      <p class="hr-today" id="hr-today">Today: no readings yet</p>
+      <ul class="recent" id="hr-recent" aria-label="Recent live readings"></ul>
+    </section>
+
+    <section class="tile t-watch" aria-labelledby="watch-h">
+      <div class="tile-head">
+        <h2 id="watch-h">Watch</h2>
+        <span class="meta" id="last-sync">not synced</span>
+      </div>
+      <p class="watch-name" id="dv-name">—</p>
+      <div class="batt" id="battery-cells" role="img" aria-label="Battery level unknown">
+        <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+      </div>
+      <div class="batt-read">
+        <span class="num num-md is-empty" id="ov-battery">—</span>
+        <span class="meta" id="ov-battery-age"></span>
+      </div>
+      <dl class="facts">
+        <div><dt>Link</dt><dd id="dv-state">—</dd></div>
+        <div><dt>Connected since</dt><dd id="dv-since">—</dd></div>
+        <div><dt>Last packet</dt><dd id="dv-packet">—</dd></div>
+        <div><dt>Firmware</dt><dd id="dv-firmware">—</dd></div>
+        <div><dt>Software</dt><dd id="dv-software">—</dd></div>
+        <div><dt>Address</dt><dd id="dv-address">—</dd></div>
+        <div><dt>Maker</dt><dd id="dv-manufacturer">—</dd></div>
+      </dl>
+    </section>
+
+    <section class="tile t-day" aria-labelledby="day-h">
+      <div class="tile-head">
+        <h2 id="day-h">The day, hour by hour</h2>
+        <ul class="key">
+          <li><i class="sw sw-heart"></i>Heart rate, every 5 minutes</li>
+          <li><i class="sw sw-steps"></i>Steps per hour <span class="badge">provisional</span></li>
+          <li><i class="sw sw-future"></i>Still to come</li>
+        </ul>
+      </div>
+      <div class="day-scroll">
+        <div class="day">
+          <div class="day-axis-row"><div></div><div class="day-axis" id="day-axis" aria-hidden="true"></div></div>
+          <div id="day-rows"></div>
+        </div>
+      </div>
+      <p class="fine" id="day-note">Blank slots are readings the watch did not record. Block-to-hour placement follows the watch’s own history order.</p>
+    </section>
+
+    <section class="tile t-recent" aria-labelledby="recent-h">
+      <div class="tile-head">
+        <h2 id="recent-h">Recent days</h2>
+        <span class="meta">read against the daily goal</span>
+      </div>
+      <div class="table-scroll">
+      <table class="days">
+        <thead><tr><th scope="col">Day</th><th scope="col" class="r">Steps</th><th scope="col" class="r">Distance</th><th scope="col" class="r">Calories</th><th scope="col">Goal</th></tr></thead>
+        <tbody id="history-activity"><tr class="empty"><td colspan="5">No daily activity has been collected yet.</td></tr></tbody>
+      </table>
+      </div>
+    </section>
+
+    <section class="tile t-sleep" aria-labelledby="sleep-h">
+      <div class="tile-head">
+        <h2 id="sleep-h">Sleep</h2>
+        <span class="meta">only when recorded</span>
+      </div>
+      <div id="history-sleep" class="sleep-body">
+        <p class="empty-title">Not recorded</p>
+        <p class="fine">The watch has reported no sleep. Nothing is estimated.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <details class="drawer" id="diag-details">
+    <summary>
+      <span class="drawer-title">Raw feed</span>
+      <span class="meta" id="diag-counters">connection events and unknown bytes</span>
+    </summary>
+    <div class="drawer-body">
+      <div class="drawer-bar">
+        <button id="diag-refresh" class="btn" type="button">Refresh</button>
+        <span class="fine">Unknown bytes are kept exactly as received. Decode errors show their raw payload and are never read as a measurement.</span>
+      </div>
+      <div class="drawer-grid">
+        <div>
+          <h3>Connection events</h3>
+          <ul id="diag-connection" class="feed"></ul>
+        </div>
+        <div>
+          <h3>Notifications (FEE1 and FEA1)</h3>
+          <ul id="diag-notifications" class="feed feed-raw"></ul>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <footer class="foot">
+    <span>Read-only · talks to a bridge on this computer only</span>
+    <span id="bridge-version"></span>
+  </footer>
+
+</div>
+<script src="scripts/bridge-api.js"></script>
+<script src="scripts/dashboard.js"></script>
+</body>
+</html>

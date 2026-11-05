@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Local secrets and runtime files (never commit)
+bridge/token.txt
+bridge/server.log
+bridge/extension_origin.txt
+*.log
+
+# Local build output
+build/
+dist/
+*.crx
+*.pem
+
+# Stale working backups kept only on this machine
+**/* bak*
+**/*-v1.*
