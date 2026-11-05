@@ -60,6 +60,7 @@ Status as of 2026-11-05. Everything here is for one user (Eyad) on one machine â
 - [ ] Optional: background alarm in the extension when the bridge is down but the user is on a new tab
 - [ ] Optional: battery low / goal reached notifications (local only)
 - [ ] Decide whether provisional fields get promoted, relabelled, or removed once hardware-confirmed (undecided in PRODUCT.md)
+- [ ] Run commands from the dashboard, just like Android's Oraimo health app â€” needs new SDK write commands (today's command allow-list is read-only), bridge command plumbing, and extension UI per command
 
 ### Packaging / repo
 
@@ -70,7 +71,7 @@ Status as of 2026-11-05. Everything here is for one user (Eyad) on one machine â
 
 ## Known limitations (not planned to fix)
 
-- No writes to the watch of any kind â€” by design (read-only product principle)
+- No writes to the watch today â€” the SDK command path is read-only until the dashboard-commands feature above is built
 - Phone Bluetooth must be off: the watch accepts one BLE connection at a time
 - Sleep never appears unless the watch returns records; alarms/workouts show "no data on this device"
 - Windows-focused: bleak's backend behaviour here is tuned to the paired Windows PC

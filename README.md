@@ -39,7 +39,7 @@ live_watch.py, probe_watch.py, bp_probe.py, passive_probe.py, inspect_watch.py
 - Python ≥ 3.12 with [bleak](https://github.com/hbldh/bleak) (`pip install -e .` pulls it in)
 - Node.js ≥ 20 (only for the extension API tests and local packing)
 - A Windows PC with Bluetooth, paired with the watch (bleak's backend is Windows-focused here)
-- Google Chrome for the dashboard
+- Chromium-based browser with extension support for the dashboard
 
 ## Installation
 
