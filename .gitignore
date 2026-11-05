@@ -21,3 +21,6 @@ dist/
 # Stale working backups kept only on this machine
 **/* bak*
 **/*-v1.*
+
+# Trash
+PRODUCT.md

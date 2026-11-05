@@ -1,7 +1,7 @@
 # Oraimo Watch 6R SDK & Local Dashboard
 
-[![CI](https://github.com/OWNER/oraimo-watch6r/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/oraimo-watch6r/actions/workflows/ci.yml)
-[![Pack extension](https://github.com/OWNER/oraimo-watch6r/actions/workflows/pack.yml/badge.svg)](https://github.com/OWNER/oraimo-watch6r/actions/workflows/pack.yml)
+[![CI](https://github.com/eyadmkv/oraimo-watch6r/actions/workflows/ci.yml/badge.svg)](https://github.com/eyadmkv/oraimo-watch6r/actions/workflows/ci.yml)
+[![Pack extension](https://github.com/eyadmkv/oraimo-watch6r/actions/workflows/pack.yml/badge.svg)](https://github.com/eyadmkv/oraimo-watch6r/actions/workflows/pack.yml)
 
 A read-only Python SDK for the Oraimo Watch 6R smartwatch (BLE protocol `MOYOUNG-V2`), plus a fully local personal dashboard: a Python HTTP bridge that owns the only BLE connection, and a Chrome Manifest V3 extension that renders watch data on the New Tab page.
 
