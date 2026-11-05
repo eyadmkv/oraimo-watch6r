@@ -24,6 +24,7 @@ Status as of 2026-11-05. Everything here is for one user (Eyad) on one machine â
 - Endpoints: `status`, `snapshot`, `history`, `diagnostics`, `reconnect`, `commands` (queued/running/succeeded/failed), `telemetry/latest`
 - On-demand `FETCH_STEPS` GATT read via `POST /api/commands`, pollable, survives page reopen
 - Records absent-`FEE3` condition once per connection without disconnecting the watch
+- Optional Discord Rich Presence: heart rate + steps on your Discord profile (stdlib named-pipe IPC client; disabled unless `bridge/discord_client_id.txt` or `--discord-client-id` is set)
 
 ### Chrome extension (`chrome-extension/`)
 
@@ -34,7 +35,7 @@ Status as of 2026-11-05. Everything here is for one user (Eyad) on one machine â
 
 ### Dev & CI
 
-- 94 Python unit tests + 4 Node extension API tests, all hardware-independent, running in GitHub Actions
+- 112 Python unit tests + 4 Node extension API tests, all hardware-independent, running in GitHub Actions
 - `pack.yml` builds a CRX3 + zip on `chrome-extension/**` pushes, `v*` tags (attached to the GitHub Release), and manual dispatch
 - v0.1.0 released with `.crx` and `.zip` assets
 

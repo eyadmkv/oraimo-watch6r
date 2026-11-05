@@ -27,6 +27,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 from .store import CommandStore, DiagnosticsStore, HistoryStore, SnapshotStore, timestamp
+from .discord_rpc import DEFAULT_CLIENT_ID_FILE, DiscordPresenceService, load_client_id
 from .watch_manager import WatchManager
 
 BRIDGE_VERSION = "1.0.0"
@@ -272,18 +273,35 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument("--scan-timeout", type=float, default=12.0, help="BLE scan window seconds")
+    parser.add_argument(
+        "--discord-client-id",
+        help=(
+            "Discord application client ID for Rich Presence; defaults to "
+            f"{DEFAULT_CLIENT_ID_FILE} if present"
+        ),
+    )
+    parser.add_argument(
+        "--no-discord",
+        action="store_true",
+        help="disable Discord Rich Presence even when a client ID is configured",
+    )
     return parser.parse_args(argv)
 
 
 async def run_bridge(args: argparse.Namespace) -> None:
     snapshot, history, diagnostics = SnapshotStore(), HistoryStore(), DiagnosticsStore()
     commands = CommandStore()
+    discord_client_id = (
+        None if args.no_discord else load_client_id(DEFAULT_CLIENT_ID_FILE, args.discord_client_id)
+    )
+    presence = DiscordPresenceService(discord_client_id) if discord_client_id else None
     manager = WatchManager(
         snapshot,
         history,
         diagnostics,
         scan_timeout=args.scan_timeout,
         command_store=commands,
+        presence=presence,
     )
     token = load_or_create_token(args.token_file, args.token)
     allowed_origin = load_extension_origin(DEFAULT_ORIGIN_FILE, args.origin)
@@ -307,14 +325,22 @@ async def run_bridge(args: argparse.Namespace) -> None:
     else:
         print(f"  CORS:  {allowed_origin}")
     print("  Read-only: no settings writes, no vendor commands, no firmware operations.")
+    if presence is not None:
+        print(f"  Discord RPC: enabled (client ID {discord_client_id})")
+    else:
+        print("  Discord RPC: disabled (no client ID configured)")
     print("Press Ctrl+C to stop.")
 
     manager.start()
+    if presence is not None:
+        presence.start()
     thread = threading.Thread(target=server.serve_forever, name="bridge-http", daemon=True)
     thread.start()
     try:
         await asyncio.Event().wait()  # run until interrupted
     finally:
+        if presence is not None:
+            presence.stop()
         await manager.stop()
         server.shutdown()
         server.server_close()

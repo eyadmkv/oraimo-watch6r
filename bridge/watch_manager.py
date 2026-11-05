@@ -44,6 +44,7 @@ class WatchManager:
         scan_timeout: float = 12.0,
         command_store: CommandStore | None = None,
         fetch_steps_timeout: float = FETCH_STEPS_TIMEOUT_S,
+        presence=None,
     ) -> None:
         self.snapshot = snapshot
         self.history = history
@@ -53,6 +54,7 @@ class WatchManager:
         self._scan_timeout = scan_timeout
         self.commands = command_store or CommandStore()
         self._fetch_steps_timeout = fetch_steps_timeout
+        self._presence = presence  # optional DiscordPresenceService-like object
 
         self.state = "stopped"
         self.detail: str | None = None
@@ -132,6 +134,8 @@ class WatchManager:
     def _set_state(self, state: str, detail: str | None = None) -> None:
         self.state = state
         self.detail = detail
+        if self._presence is not None:
+            self._presence.set_bridge_state(state)
         if state == "connected":
             from .store import timestamp
 
@@ -237,6 +241,8 @@ class WatchManager:
                         "source_characteristic": FEE1,
                     }
                     self.snapshot.apply_live_activity(activity)
+                    if self._presence is not None and activity.steps is not None:
+                        self._presence.update_steps(activity.steps)
                     self.commands.update(command_id, "succeeded", result=result)
                 except asyncio.TimeoutError:
                     self.commands.update(
@@ -341,14 +347,20 @@ class WatchManager:
 
     def _apply_live_activity(self, activity: LiveActivity) -> None:
         self.snapshot.apply_live_activity(activity)
+        if self._presence is not None and activity.steps is not None:
+            self._presence.update_steps(activity.steps)
         self.diagnostics.record_decoded()
 
     def _apply_step_count(self, value: StepCount) -> None:
         self.snapshot.apply_step_count(value.steps)
+        if self._presence is not None:
+            self._presence.update_steps(value.steps)
         self.diagnostics.record_decoded()
 
     def _apply_heart_rate(self, measurement) -> None:
         self.snapshot.apply_heart_rate(measurement.bpm)
+        if self._presence is not None and measurement.bpm is not None:
+            self._presence.update_heart_rate(measurement.bpm)
         self.diagnostics.record_decoded()
 
     # -- notification streams -------------------------------------------------

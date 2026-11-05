@@ -176,6 +176,18 @@ Command flow: `POST /api/commands` with `{"type":"FETCH_STEPS"}` → poll `GET /
 
 The proprietary `FEE3` notification subscription is started only when an SDK protocol query needs it. If `FEE3` is absent on a connection, that does not block the independent `FEE1` read; the bridge records the condition once and skips the remaining proprietary settings/history queries for that connection. Protocol-backed history stays unavailable until `FEE3` is discoverable.
 
+### Discord Rich Presence (optional)
+
+The bridge can publish your live heart rate and step count to your Discord profile: heart rate as the presence state (`♥ 72 bpm`), steps as the details line (`6,603 steps`). Values the watch has not reported yet are omitted — never shown as zero. While the bridge is scanning or connecting the presence reads *Connecting…*; a dropped watch reads *Watch disconnected*.
+
+To enable it:
+
+1. Create an application at [discord.com/developers/applications](https://discord.com/developers/applications) — no bot user, no OAuth scopes; you only need the **Application ID**.
+2. Put that ID in `bridge/discord_client_id.txt` (git-ignored), or pass `--discord-client-id <ID>`.
+3. Restart the bridge with Discord running. It prints `Discord RPC: enabled (client ID …)`.
+
+`--no-discord` disables it for one run. The publisher is standard-library only (Windows named-pipe IPC to `discord-ipc-0…9`, handshake + `SET_ACTIVITY`, auto-reconnect with backoff) and stays off when no client ID is configured — cloning the repo or running the tests never touches Discord. Remember the presence text is visible to anyone who can see your Discord profile.
+
 ### Data integrity
 
 Unavailable measurements render as "—", never as zero. FEE1 field interpretation and hourly buckets are labelled provisional. Sleep appears only when the watch actually returns records. Raw `FEE1`/`FEA1` payloads, unknown bytes and decode errors are visible in the collapsible diagnostics section. The bridge issues read-only BLE operations only.

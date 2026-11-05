@@ -10,6 +10,7 @@ venv/
 bridge/token.txt
 bridge/server.log
 bridge/extension_origin.txt
+bridge/discord_client_id.txt
 *.log
 
 # Local build output
