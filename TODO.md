@@ -15,6 +15,7 @@ Status as of 2026-11-05. Everything here is for one user (Eyad) on one machine â
 - Alarm and workout summary decoders (no data returned by this watch yet)
 - Strict command allow-list on `WatchClient.query`; no writes, no OTA/DFU
 - `on_raw` / `on_decode_error` diagnostic hooks for notification streams
+- Exposes a one-shot GATT read of the `FEE1` activity characteristic (used by the bridge's Fetch Steps)
 
 ### Local bridge (`bridge/`)
 
