@@ -35,7 +35,7 @@ jobs:
             printf '%s\n' "$CRX_PRIVATE_KEY" > key.pem
             echo "Using CRX_PRIVATE_KEY secret (stable extension ID)."
           else
-            node -e "const{generateKeyPairSync,writeFileSync}=require('crypto');const{privateKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});writeFileSync('key.pem',privateKey)"
+            node -e "const{generateKeyPairSync}=require('crypto'),{writeFileSync}=require('fs');const{privateKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});writeFileSync('key.pem',privateKey)"
             echo "CRX_PRIVATE_KEY secret is not set; generated an ephemeral key." | tee "$GITHUB_STEP_SUMMARY"
             echo "The extension ID will differ on every run. Add a CRX_PRIVATE_KEY repo secret to get a stable ID." >> "$GITHUB_STEP_SUMMARY"
           fi

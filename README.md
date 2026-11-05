@@ -204,7 +204,7 @@ A Chrome extension's ID is derived from its signing key. To keep the same extens
 1. Generate a key once and keep it private — **never commit it**:
 
    ```powershell
-   node -e "const{generateKeyPairSync,writeFileSync}=require('crypto');const{privateKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});writeFileSync('watch6r.key.pem',privateKey)"
+   node -e "const{generateKeyPairSync}=require('crypto'),{writeFileSync}=require('fs');const{privateKey}=generateKeyPairSync('rsa',{modulusLength:2048,privateKeyEncoding:{type:'pkcs1',format:'pem'},publicKeyEncoding:{type:'spki',format:'pem'}});writeFileSync('watch6r.key.pem',privateKey)"
    ```
 
 2. Add the file's contents as a repository secret named `CRX_PRIVATE_KEY` (*Settings → Secrets and variables → Actions*).
